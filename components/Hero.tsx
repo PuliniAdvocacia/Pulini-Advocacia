@@ -1,80 +1,44 @@
 
 import React from 'react';
-import { ShieldCheck, Lock, Wifi } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { WhatsAppIcon, WHATSAPP_URL } from '../constants';
 
 const Hero: React.FC = () => {
   return (
-    <section id="home" className="relative min-h-[90vh] flex items-center pt-16 overflow-hidden bg-navy-900">
-      {/* Background Orbs */}
-      <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-sky-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-indigo-500/5 rounded-full blur-[80px] pointer-events-none"></div>
-
-      <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center relative z-10">
+    <section id="home" className="relative min-h-[50vh] flex items-center justify-center pt-20 pb-4 overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full hero-gradient pointer-events-none"></div>
+      
+      <div className="container relative z-10 flex flex-col items-center text-center">
         <div className="fade-in">
-          <h1 className="text-4xl lg:text-6xl font-serif font-black text-white leading-tight mb-4">
-            Proteção Jurídica na <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">
-              Era dos Dados
-            </span>
-          </h1>
-          <p className="text-base md:text-lg text-slate-400 mb-8 max-w-md leading-relaxed">
-            Combinamos excelência jurídica com profundo conhecimento técnico para blindar sua presença digital e assegurar conformidade com a LGPD.
-          </p>
+          <span className="section-header-badge">Excelência em Direito & Tecnologia</span>
+        </div>
+
+        <h1 className="fade-in text-2xl md:text-4xl lg:text-5xl font-display font-bold mb-2 leading-tight tracking-tight text-white max-w-2xl">
+          Proteção Jurídica <br />
+          <span className="text-gradient">na Fronteira Digital</span>
+        </h1>
+
+        <p className="fade-in text-[10px] md:text-sm text-slate-400 max-w-md mb-5 leading-relaxed font-light">
+          Estratégia jurídica de alta performance para a economia digital. Blindagem institucional para escalar sua inovação com segurança.
+        </p>
+
+        <div className="fade-in flex flex-col sm:flex-row items-center gap-2">
           <a
             href={WHATSAPP_URL}
             target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center space-x-3 bg-whatsapp text-white px-6 py-3 rounded-lg font-bold text-sm hover:scale-105 transition-transform shadow-lg shadow-whatsapp/20"
+            className="group relative px-4 py-2.5 bg-sky-500 text-navy-950 font-bold text-[8px] uppercase tracking-wider rounded-lg transition-all hover:scale-105 active:scale-95 flex items-center gap-2 shadow-lg shadow-sky-500/20"
           >
-            <WhatsAppIcon className="w-5 h-5" />
-            <span>Falar no WhatsApp</span>
+            <WhatsAppIcon className="w-3 h-3" />
+            <span>Consultoria Estratégica</span>
           </a>
-        </div>
-
-        <div className="hidden lg:flex justify-center fade-in">
-          <div className="relative scale-90 lg:scale-100">
-            {/* Main Decorative Card */}
-            <div className="glass p-6 rounded-2xl w-72 glow-blue relative z-10 overflow-hidden">
-              <div className="absolute top-0 right-0 p-3">
-                <div className="flex items-center space-x-2">
-                  <span className="w-1.5 h-1.5 bg-sky-400 rounded-full animate-pulse"></span>
-                  <span className="text-[9px] text-sky-400 font-mono">ENCRYPTED</span>
-                </div>
-              </div>
-              
-              <div className="mb-6">
-                <ShieldCheck className="text-sky-400 w-10 h-10 mb-3" />
-                <h3 className="text-white text-lg font-bold font-serif">Status: SECURE</h3>
-                <p className="text-slate-400 text-[10px]">Security Protocol 4.1.0-A</p>
-              </div>
-
-              <div className="space-y-3">
-                <div className="h-1 bg-navy-700 rounded-full overflow-hidden">
-                  <div className="h-full bg-sky-500 w-[92%] animate-[width_2s_ease-out]"></div>
-                </div>
-                <div className="flex justify-between text-[9px] text-slate-400 font-mono">
-                  <span>LGPD COMPLIANCE</span>
-                  <span>92% ACTIVE</span>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-sky-500/10 grid grid-cols-2 gap-4">
-                <div className="flex items-center space-x-2">
-                  <Lock size={12} className="text-sky-500" />
-                  <span className="text-[9px] font-mono">DATA BLIND</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Wifi size={12} className="text-sky-500" />
-                  <span className="text-[9px] font-mono">ACTIVE FEED</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Back Elements */}
-            <div className="absolute -top-4 -left-4 w-full h-full border border-sky-500/20 rounded-2xl -z-10 rotate-2"></div>
-            <div className="absolute -bottom-4 -right-4 w-full h-full border border-indigo-500/10 rounded-2xl -z-10 -rotate-2"></div>
-          </div>
+          
+          <a
+            href="#servicos"
+            className="group px-4 py-2.5 border border-white/10 hover:border-sky-500/50 text-white font-bold text-[8px] uppercase tracking-wider rounded-lg transition-all flex items-center gap-2 glass-panel"
+          >
+            <span>Soluções</span>
+            <ArrowRight size={10} className="group-hover:translate-x-1 transition-transform" />
+          </a>
         </div>
       </div>
     </section>
