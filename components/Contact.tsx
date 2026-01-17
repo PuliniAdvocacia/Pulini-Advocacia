@@ -1,18 +1,48 @@
 
 import React, { useState } from 'react';
-import { Mail, MapPin, Send } from 'lucide-react';
+import { Mail, MapPin, Send, Loader2, AlertCircle } from 'lucide-react';
 import { WhatsAppIcon, OFFICE_EMAIL, OFFICE_PHONE } from '../constants';
+import { supabase } from '../services/supabaseClient';
 
 const Contact: React.FC = () => {
-  const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success'>('idle');
+  const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: 'Adequação à LGPD',
+    message: ''
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormStatus('sending');
-    setTimeout(() => {
+
+    try {
+      const { error } = await supabase
+        .from('contacts')
+        .insert([
+          { 
+            name: formData.name, 
+            email: formData.email, 
+            subject: formData.subject, 
+            message: formData.message 
+          }
+        ]);
+
+      if (error) throw error;
+
       setFormStatus('success');
+      setFormData({ name: '', email: '', subject: 'Adequação à LGPD', message: '' });
       setTimeout(() => setFormStatus('idle'), 5000);
-    }, 1500);
+    } catch (err) {
+      console.error('Erro ao enviar para o Supabase:', err);
+      setFormStatus('error');
+      setTimeout(() => setFormStatus('idle'), 5000);
+    }
   };
 
   return (
@@ -67,7 +97,15 @@ const Contact: React.FC = () => {
                     <Send className="text-sky-400" size={24} />
                   </div>
                   <h4 className="text-xl font-bold text-white mb-1">Mensagem Enviada!</h4>
-                  <p className="text-slate-400 text-sm">Em breve um de nossos especialistas entrará em contato.</p>
+                  <p className="text-slate-400 text-sm">Dados salvos com sucesso em nosso sistema.</p>
+                </div>
+              ) : formStatus === 'error' ? (
+                <div className="text-center py-10">
+                  <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-5">
+                    <AlertCircle className="text-red-400" size={24} />
+                  </div>
+                  <h4 className="text-xl font-bold text-white mb-1">Erro no Envio</h4>
+                  <p className="text-slate-400 text-sm">Não foi possível conectar ao banco de dados. Tente novamente.</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -76,6 +114,9 @@ const Contact: React.FC = () => {
                       <label className="block text-slate-300 text-[11px] font-medium mb-1.5 uppercase tracking-wider">Nome</label>
                       <input
                         required
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
                         type="text"
                         className="w-full bg-navy-900/50 border border-sky-500/20 rounded-lg px-4 py-2.5 text-white text-xs focus:outline-none focus:border-sky-500 transition-colors"
                         placeholder="João da Silva"
@@ -85,6 +126,9 @@ const Contact: React.FC = () => {
                       <label className="block text-slate-300 text-[11px] font-medium mb-1.5 uppercase tracking-wider">E-mail</label>
                       <input
                         required
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
                         type="email"
                         className="w-full bg-navy-900/50 border border-sky-500/20 rounded-lg px-4 py-2.5 text-white text-xs focus:outline-none focus:border-sky-500 transition-colors"
                         placeholder="voce@empresa.com.br"
@@ -93,7 +137,12 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-slate-300 text-[11px] font-medium mb-1.5 uppercase tracking-wider">Assunto</label>
-                    <select className="w-full bg-navy-900/50 border border-sky-500/20 rounded-lg px-4 py-2.5 text-white text-xs focus:outline-none focus:border-sky-500 transition-colors">
+                    <select 
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      className="w-full bg-navy-900/50 border border-sky-500/20 rounded-lg px-4 py-2.5 text-white text-xs focus:outline-none focus:border-sky-500 transition-colors"
+                    >
                       <option>Adequação à LGPD</option>
                       <option>Contratos Digitais</option>
                       <option>Consultoria Geral</option>
@@ -104,6 +153,9 @@ const Contact: React.FC = () => {
                     <label className="block text-slate-300 text-[11px] font-medium mb-1.5 uppercase tracking-wider">Mensagem</label>
                     <textarea
                       required
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
                       rows={3}
                       className="w-full bg-navy-900/50 border border-sky-500/20 rounded-lg px-4 py-2.5 text-white text-xs focus:outline-none focus:border-sky-500 transition-colors"
                       placeholder="Como podemos ajudar?"
@@ -113,8 +165,17 @@ const Contact: React.FC = () => {
                     disabled={formStatus === 'sending'}
                     className="w-full bg-sky-500 text-navy-900 font-bold py-3 rounded-lg hover:bg-sky-400 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 text-xs uppercase tracking-widest"
                   >
-                    <span>{formStatus === 'sending' ? 'Enviando...' : 'Enviar'}</span>
-                    <Send size={14} />
+                    {formStatus === 'sending' ? (
+                      <>
+                        <Loader2 className="animate-spin" size={14} />
+                        <span>Enviando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Enviar</span>
+                        <Send size={14} />
+                      </>
+                    )}
                   </button>
                 </form>
               )}

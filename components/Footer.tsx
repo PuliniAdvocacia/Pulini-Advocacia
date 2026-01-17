@@ -51,7 +51,7 @@ const Footer: React.FC = () => {
 
         <div className="pt-6 border-t border-sky-500/5 flex flex-col md:flex-row justify-between items-center text-slate-600 text-[9px] tracking-widest uppercase">
           <p>© {new Date().getFullYear()} Pulini Advocacia. Todos os direitos reservados.</p>
-          <p className="mt-3 md:mt-0">OAB/SP 000.000 | Dr. Pulini</p>
+          <p className="mt-3 md:mt-0">OAB/SP 460.464 | Dr. Pulini</p>
         </div>
       </div>
       <style>{`
