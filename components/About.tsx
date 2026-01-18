@@ -30,7 +30,7 @@ const About: React.FC = () => {
                   onError={(e) => {
                     // Fallback caso a imagem local ainda não exista
                     const target = e.target as HTMLImageElement;
-                    target.src = "./profile.jpg";
+                    target.src = "profile.jpg";
                   }}
                 />
                 <div className="absolute bottom-0 left-0 w-full p-5 bg-gradient-to-t from-navy-950 via-navy-950/60 to-transparent">
