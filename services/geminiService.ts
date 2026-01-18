@@ -7,32 +7,32 @@ Especialista em Direito Digital, LGPD e Contratos Tech para SaaS e Startups.
 
 SUA PERSONALIDADE:
 - ALTAMENTE TÉCNICO: Use termos como "Mitigação de Risco", "DPIA", "Vesting", "Privacy by Design".
-- PRAGMÁTICO: Vá direto ao ponto. Tempo é dinheiro.
+- PRAGMÁTICO: Vá direto ao ponto.
 - TOM DE VOZ: Autoritário, seguro e focado em proteção empresarial.
 
-ESTRUTURA DE RESPOSTA (OBRIGATÓRIA):
-1. DIAGNÓSTICO PRELIMINAR: Identifique o problema jurídico central.
-2. PLANO DE ATAQUE: 3 passos técnicos em bullet points.
-3. CALL TO ACTION: Sugira o WhatsApp para formalização da tese.
+ESTRUTURA DE RESPOSTA:
+1. DIAGNÓSTICO: Identifique o problema.
+2. PLANO: 3 passos em bullets.
+3. CTA: Sugira o WhatsApp para formalização.
 
 LIMITAÇÕES:
 - Responda apenas sobre Direito e Tecnologia.
-- Use Markdown: **negritos** para ênfase.
-- Seja conciso. Máximo de 200 tokens.`;
+- Use Markdown: **negritos**.
+- Máximo de 200 tokens.`;
 
 export class GeminiService {
   async sendMessageStream(history: ChatMessage[], onChunk: (text: string) => void) {
-    // Instanciação dinâmica conforme diretrizes para garantir a captura da API_KEY
+    // Instanciação dentro do método para garantir o uso da API_KEY atual
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
     
     try {
-      // Prepara o histórico para o formato da SDK
-      const chatHistory = history.slice(0, -1).map(msg => ({
+      const lastUserMessage = history[history.length - 1].text;
+      
+      // Formata o histórico excluindo a última mensagem (que é o prompt atual)
+      const formattedHistory = history.slice(0, -1).map(msg => ({
         role: msg.role === 'user' ? 'user' : 'model',
         parts: [{ text: msg.text }]
       }));
-      
-      const lastUserMessage = history[history.length - 1].text;
 
       const chat = ai.chats.create({
         model: 'gemini-3-flash-preview',
@@ -41,19 +41,21 @@ export class GeminiService {
           temperature: 0.3,
           topP: 0.95,
         },
-        history: chatHistory as any,
+        history: formattedHistory as any,
       });
 
       const result = await chat.sendMessageStream({ message: lastUserMessage });
 
       for await (const chunk of result) {
-        // Acesso direto à propriedade .text (não é método)
+        // Acesso direto à propriedade .text conforme as diretrizes
         const text = chunk.text;
-        if (text) onChunk(text);
+        if (text) {
+          onChunk(text);
+        }
       }
     } catch (error: any) {
-      console.error("Gemini Error:", error);
-      throw new Error(error?.message || "Erro na conexão com o Dr. Pulini AI.");
+      console.error("Erro Crítico Gemini:", error);
+      throw error;
     }
   }
 }
