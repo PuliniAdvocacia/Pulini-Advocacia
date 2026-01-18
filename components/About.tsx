@@ -20,7 +20,7 @@ const About: React.FC = () => {
               
               <div className="relative aspect-square md:aspect-[4/5] overflow-hidden rounded-[1.5rem] border border-white/10 glass-panel shadow-2xl bg-navy-900">
                 <img 
-                  src="./profile.jpg" 
+                  src="profile.jpg" 
                   alt="Dr. Vitor Pulini" 
                   className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                 />
