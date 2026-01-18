@@ -14,7 +14,10 @@ const Logo: React.FC<LogoProps> = ({ className = "h-8", color = "currentColor" }
       xmlns="http://www.w3.org/2000/svg" 
       className={className}
       style={{ overflow: 'visible' }}
+      aria-label="Logo Pulini Advocacia - Especialista em Direito Digital"
+      role="img"
     >
+      <title>Pulini Advocacia</title>
       <g>
         {/* 
           PULINI 

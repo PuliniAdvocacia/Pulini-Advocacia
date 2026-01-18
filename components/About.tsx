@@ -4,7 +4,7 @@ import { Award, BookOpen, ShieldCheck, Target } from 'lucide-react';
 
 const About: React.FC = () => {
   return (
-    <section id="sobre" className="py-16 relative bg-navy-950/50 overflow-hidden">
+    <section id="sobre" className="py-16 relative bg-navy-950/50 overflow-hidden" aria-labelledby="about-title">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-20 w-72 h-72 bg-sky-500/5 blur-[100px] rounded-full"></div>
@@ -23,14 +23,10 @@ const About: React.FC = () => {
               <div className="relative aspect-[3/4] overflow-hidden rounded-[1.5rem] border border-white/10 glass-panel shadow-2xl bg-navy-900">
                 <img 
                   src="https://i.postimg.cc/Y23xGLCb/profile.jpg" 
-                  alt="Dr. Vitor Pulini" 
+                  alt="Dr. Vitor Pulini - Especialista em Direito Digital e LGPD em São Paulo" 
+                  title="Dr. Vitor Pulini | Pulini Advocacia"
                   className="w-full h-full object-cover object-top grayscale hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    if (target.src.includes('profile.png')) {
-                       target.src = "https://i.postimg.cc/Y23xGLCb/profile.jpg";
-                    }
-                  }}
+                  loading="lazy"
                 />
                 
                 {/* Overlay de Identificação */}
@@ -51,32 +47,32 @@ const About: React.FC = () => {
           </div>
 
           {/* Lado Direito: Descrição Qualificada */}
-          <div className="lg:col-span-7 fade-in">
+          <article className="lg:col-span-7 fade-in">
             <span className="section-header-badge">Sobre o Advogado</span>
-            <h2 className="text-2xl md:text-4xl font-display font-bold text-white mb-6 leading-tight">
+            <h2 id="about-title" className="text-2xl md:text-4xl font-display font-bold text-white mb-6 leading-tight">
               Estratégia Jurídica <br />
-              <span className="text-gradient">de Alta Performance.</span>
+              <span className="text-gradient">de Alta Performance em Direito Digital.</span>
             </h2>
 
             <div className="space-y-5">
               <p className="text-slate-400 text-xs md:text-base leading-relaxed font-light">
-                O <span className="text-white font-medium">Dr. Vitor Pulini</span> é especialista em Direito Digital e Proteção de Dados, atuando como o braço jurídico estratégico de empresas que operam na economia digital.
+                O <span className="text-white font-medium">Dr. Vitor Pulini</span> é um advogado referência em <strong className="text-white">Direito Digital e Proteção de Dados (LGPD)</strong>, atuando como o braço jurídico estratégico de empresas que operam na economia digital em todo o Brasil.
               </p>
               
               <p className="text-slate-400 text-xs md:text-base leading-relaxed font-light">
-                Com uma abordagem pragmática e focada em resultados, sua missão é transformar o Direito em um diferencial competitivo, garantindo que a inovação ocorra sob uma blindagem institucional sólida e segura.
+                Com uma abordagem pragmática e focada em resultados, sua missão é transformar o Direito em um diferencial competitivo, garantindo que a inovação ocorra sob uma blindagem institucional sólida e segura para startups e empresas tech.
               </p>
 
               {/* Qualificações Grid Compacto */}
               <div className="grid grid-cols-2 gap-4 pt-6">
                 {[
-                  { icon: Award, label: "Expertise LGPD", desc: "Consultoria Técnica" },
+                  { icon: Award, label: "Expertise LGPD", desc: "Consultoria Técnica ANPD" },
                   { icon: BookOpen, label: "SaaS & App", desc: "Compliance Digital" },
                   { icon: Target, label: "M&A Tech", desc: "Blindagem Startups" },
-                  { icon: ShieldCheck, label: "Cybersecurity", desc: "Gestão de Riscos" }
+                  { icon: ShieldCheck, label: "Cybersecurity", desc: "Gestão de Incidentes" }
                 ].map((item, i) => (
                   <div key={i} className="flex items-center space-x-3 p-4 rounded-2xl border border-white/5 bg-navy-900/40 hover:bg-navy-900/60 transition-colors group">
-                    <item.icon className="text-sky-500 shrink-0 group-hover:scale-110 transition-transform" size={18} />
+                    <item.icon className="text-sky-500 shrink-0 group-hover:scale-110 transition-transform" size={18} aria-hidden="true" />
                     <div>
                       <h4 className="text-white font-bold text-[10px] md:text-[11px] uppercase tracking-wide">{item.label}</h4>
                       <p className="text-slate-500 text-[9px]">{item.desc}</p>
@@ -90,14 +86,16 @@ const About: React.FC = () => {
               <a 
                 href="https://wa.me/5514997912815" 
                 target="_blank" 
+                rel="noopener noreferrer"
+                title="Falar diretamente com Dr. Vitor Pulini"
                 className="group flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest text-sky-400 hover:text-white transition-all"
               >
-                <span>Solicitar Consultoria Individual</span>
+                <span>Solicitar Consultoria Individual Especializada</span>
                 <span className="w-8 h-[1px] bg-sky-500 group-hover:w-12 transition-all"></span>
-                <span className="text-lg">→</span>
+                <span className="text-lg" aria-hidden="true">→</span>
               </a>
             </div>
-          </div>
+          </article>
 
         </div>
       </div>
