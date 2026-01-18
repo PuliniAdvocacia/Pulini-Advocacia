@@ -24,13 +24,13 @@ const About: React.FC = () => {
                    deste projeto e renomeie-o para 'foto-perfil.jpg' 
                 */}
                 <img 
-                  src="./profile.jpg" 
+      
                   alt="Dr. Vitor Pulini" 
                   className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                   onError={(e) => {
                     // Fallback caso a imagem local ainda não exista
                     const target = e.target as HTMLImageElement;
-                    target.src = "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=800";
+                    target.src = "./profile.jpg";
                   }}
                 />
                 <div className="absolute bottom-0 left-0 w-full p-5 bg-gradient-to-t from-navy-950 via-navy-950/60 to-transparent">
