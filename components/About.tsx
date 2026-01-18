@@ -20,14 +20,14 @@ const About: React.FC = () => {
               
               <div className="relative aspect-square md:aspect-[4/5] overflow-hidden rounded-[1.5rem] border border-white/10 glass-panel shadow-2xl bg-navy-900">
                 <img 
-                  src="profile.png" 
+                  src="https://i.postimg.cc/Y23xGLCb/profile.jpg" 
                   alt="Dr. Vitor Pulini" 
                   className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     // Se o link falhar ou profile.png não existir, este placeholder profissional assume
                     if (target.src.includes('profile.png')) {
-                       target.src = "https://github.com/PuliniAdvocacia/Pulini-Advocacia/blob/b4a8e8e10a4a4273fe26e37b014277c29181876f/profile.jpg";
+                       target.src = "https://i.postimg.cc/Y23xGLCb/profile.jpg";
                     }
                   }}
                 />
