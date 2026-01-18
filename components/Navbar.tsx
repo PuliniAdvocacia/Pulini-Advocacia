@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
+import Logo from './Logo';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -38,9 +39,8 @@ const Navbar: React.FC = () => {
       isScrolled ? 'bg-navy-900/95 backdrop-blur-md py-2 border-b border-sky-500/10' : 'bg-transparent py-4'
     }`}>
       <div className="container mx-auto px-6 flex justify-between items-center">
-        <a href="#home" className="flex items-baseline space-x-1">
-          <span className="text-xl font-display font-bold text-white tracking-tighter">PULINI</span>
-          <span className="text-[7px] font-sans tracking-[0.3em] uppercase text-sky-400">Advocacia</span>
+        <a href="#home" className="flex items-center group">
+          <Logo className="h-10 md:h-12 w-auto transition-transform group-hover:scale-105" color="white" />
         </a>
 
         <div className="hidden md:flex items-center space-x-8">
