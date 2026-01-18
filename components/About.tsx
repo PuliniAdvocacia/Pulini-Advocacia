@@ -13,23 +13,21 @@ const About: React.FC = () => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center max-w-6xl mx-auto">
           
-          {/* Lado Esquerdo: Foto Local */}
+          {/* Lado Esquerdo: Foto Local com Fallback Inteligente */}
           <div className="lg:col-span-5 fade-in">
             <div className="relative group max-w-sm mx-auto lg:ml-0">
               <div className="absolute -inset-3 bg-gradient-to-tr from-sky-500/20 to-indigo-500/20 rounded-[2rem] blur-lg opacity-40 group-hover:opacity-70 transition-opacity duration-500"></div>
               
-              <div className="relative aspect-square md:aspect-[4/5] overflow-hidden rounded-[1.5rem] border border-white/10 glass-panel shadow-2xl">
-                {/* 
-                   DICA: Para sua foto aparecer, coloque o arquivo da foto na mesma pasta 
-                   deste projeto e renomeie-o para 'foto-perfil.jpg' 
-                */}
+              <div className="relative aspect-square md:aspect-[4/5] overflow-hidden rounded-[1.5rem] border border-white/10 glass-panel shadow-2xl bg-navy-900">
                 <img 
                   src="./profile.png" 
                   alt="Dr. Vitor Pulini" 
                   className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                   onError={(e) => {
-                    // Fallback caso a imagem local ainda não exista
                     const target = e.target as HTMLImageElement;
+                    // Previne loop infinito se a imagem de fallback também falhar
+                    target.onerror = null; 
+                    // Se o seu arquivo não for 'profile.png', ele carregará esta foto profissional abaixo:
                     target.src = "./profile.png";
                   }}
                 />
