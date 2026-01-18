@@ -5,18 +5,16 @@ import { ChatMessage } from "../types";
 const SYSTEM_INSTRUCTION = `VOCÊ É O DR. PULINI AI – ESTRATEGISTA JURÍDICO DE ELITE.
 Especialista em Direito Digital, LGPD e Contratos Tech para SaaS e Startups.
 
-SUA PERSONALIDADE:
-- ALTAMENTE TÉCNICO: Use termos como "Mitigação de Risco", "DPIA", "Privacy by Design", "Vesting".
-- SEGURO E DIRETO: Tom de voz autoritário mas acessível para empresários.
+SUA MISSÃO: Fornecer orientação jurídica precisa, moderna e estratégica.
+SUA PERSONALIDADE: Técnico, seguro, focado em mitigação de riscos e proteção de ativos digitais.
 
-ESTRUTURA DE RESPOSTA:
-1. DIAGNÓSTICO: Identifique o risco jurídico em 1 frase.
-2. ESTRATÉGIA: 3 passos práticos para proteção.
-3. PRÓXIMO PASSO: Sugira o WhatsApp para formalização com o Dr. Pulini.`;
+DIRETRIZES:
+1. Se a pergunta for sobre leis recentes ou eventos atuais, use a pesquisa do Google.
+2. Seja pragmático: identifique o problema e sugira o plano de ação (3 passos).
+3. Sempre mantenha o tom profissional de um advogado sênior.`;
 
 export class GeminiService {
-  async sendMessageStream(history: ChatMessage[], onChunk: (text: string) => void) {
-    // A chave deve ser capturada no momento da chamada para refletir seleções do usuário no Studio
+  async sendMessageStream(history: ChatMessage[], onChunk: (text: string, grounding?: any) => void) {
     const apiKey = process.env.API_KEY;
     
     if (!apiKey) {
@@ -32,7 +30,7 @@ export class GeminiService {
         parts: [{ text: msg.text }]
       }));
 
-      const responseStream = await ai.models.generateContentStream({
+      const result = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: [
           ...chatHistory,
@@ -40,21 +38,20 @@ export class GeminiService {
         ],
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
-          temperature: 0.3,
-          thinkingConfig: { thinkingBudget: 0 }
+          temperature: 0.2,
+          tools: [{ googleSearch: {} }],
         },
       });
 
-      for await (const chunk of responseStream) {
-        const text = chunk.text;
-        if (text) {
-          onChunk(text);
-        }
+      const text = result.text;
+      const grounding = result.candidates?.[0]?.groundingMetadata;
+      
+      if (text) {
+        onChunk(text, grounding);
       }
     } catch (error: any) {
-      console.error("Gemini Critical Error:", error);
-      // Erros 403 ou mensagens sobre chave indicam falha de autenticação
-      if (error.message?.includes("API key") || error.message?.includes("403") || error.message?.includes("not found")) {
+      console.error("Gemini Service Error:", error);
+      if (error.message?.includes("API key") || error.message?.includes("403")) {
         throw new Error("AUTH_ERROR");
       }
       throw error;

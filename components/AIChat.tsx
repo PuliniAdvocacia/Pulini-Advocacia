@@ -1,45 +1,67 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Bot, Loader2, Cpu, RefreshCw, AlertCircle, Key } from 'lucide-react';
+import { X, Send, Bot, Loader2, Cpu, RefreshCw, AlertCircle, Key, ExternalLink, Globe } from 'lucide-react';
 import { geminiService } from '../services/geminiService';
 import { ChatMessage } from '../types';
 import { WHATSAPP_URL } from '../constants';
 
-const MessageContent = ({ text }: { text: string }) => {
+const MessageContent = ({ text, grounding }: { text: string, grounding?: any }) => {
   if (!text) return null;
+  
   const lines = text.split('\n');
-  return (
-    <div className="space-y-2">
-      {lines.map((line, i) => {
-        if (!line.trim() && i > 0) return <div key={i} className="h-2" />;
-        
-        const parts = line.split(/(\*\*.*?\*\*)/g);
-        const formattedLine = parts.map((part, j) => 
-          part.startsWith('**') && part.endsWith('**') ? 
-          <strong key={j} className="text-white font-bold">{part.slice(2, -2)}</strong> : part
-        );
+  const sources = grounding?.groundingChunks?.map((chunk: any) => chunk.web).filter(Boolean) || [];
 
-        if (line.trim().startsWith('* ') || line.trim().startsWith('- ')) {
-          return (
-            <div key={i} className="flex items-start space-x-2 ml-1">
-              <div className="w-1 h-1 bg-sky-500 rounded-full mt-2 shrink-0"></div>
-              <span className="text-slate-300 text-[13px] leading-relaxed">{formattedLine}</span>
-            </div>
+  return (
+    <div className="space-y-3">
+      <div className="text-slate-300 text-[13px] leading-relaxed">
+        {lines.map((line, i) => {
+          const parts = line.split(/(\*\*.*?\*\*)/g);
+          const formattedLine = parts.map((part, j) => 
+            part.startsWith('**') && part.endsWith('**') ? 
+            <strong key={j} className="text-white font-bold">{part.slice(2, -2)}</strong> : part
           );
-        }
-        return (
-          <p key={i} className="leading-relaxed text-[13px] text-slate-300">
-            {formattedLine}
-          </p>
-        );
-      })}
+
+          if (line.trim().startsWith('* ') || line.trim().startsWith('- ')) {
+            return (
+              <div key={i} className="flex items-start space-x-2 my-1 ml-1">
+                <div className="w-1 h-1 bg-sky-500 rounded-full mt-2 shrink-0"></div>
+                <span>{formattedLine}</span>
+              </div>
+            );
+          }
+          return <p key={i} className={line.trim() === '' ? 'h-2' : 'mb-1'}>{formattedLine}</p>;
+        })}
+      </div>
+
+      {sources.length > 0 && (
+        <div className="mt-4 pt-3 border-t border-white/5 space-y-2">
+          <div className="flex items-center gap-2 text-[9px] font-bold text-sky-400 uppercase tracking-widest">
+            <Globe size={10} />
+            <span>Fontes Verificadas</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {sources.map((src: any, idx: number) => (
+              <a 
+                key={idx} 
+                href={src.uri} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-2 py-1 bg-sky-500/5 hover:bg-sky-500/10 border border-sky-500/10 rounded-md text-[9px] text-slate-400 hover:text-sky-400 transition-all truncate max-w-[180px]"
+              >
+                <ExternalLink size={8} />
+                {src.title || 'Referência Jurídica'}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 const AIChat: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
+  const [messages, setMessages] = useState<(ChatMessage & { grounding?: any })[]>([
     { role: 'model', text: 'Dr. Pulini AI **online**. Como posso auxiliar na sua estratégia jurídica hoje?' }
   ]);
   const [input, setInput] = useState('');
@@ -75,38 +97,27 @@ const AIChat: React.FC = () => {
     const text = input.trim();
     if (!text || isLoading) return;
 
-    // Antes de enviar, verifica se o usuário precisa selecionar uma chave (regra AI Studio)
-    // @ts-ignore
-    if (window.aistudio && !(await window.aistudio.hasSelectedApiKey()) && !process.env.API_KEY) {
-      await handleActivateAPI();
-      // Não interrompemos o fluxo, deixamos a tentativa de envio prosseguir para disparar o erro amigável se necessário
-    }
-
     const userMsg: ChatMessage = { role: 'user', text };
     setMessages(prev => [...prev, userMsg, { role: 'model', text: '' }]);
     setInput('');
     setIsLoading(true);
     setNeedsKey(false);
 
-    let accumulatedResponse = '';
-
     try {
-      await geminiService.sendMessageStream([...messages, userMsg], (chunk) => {
-        accumulatedResponse += chunk;
+      await geminiService.sendMessageStream([...messages, userMsg], (response, grounding) => {
         setMessages(prev => {
           const newMsgs = [...prev];
-          newMsgs[newMsgs.length - 1] = { role: 'model', text: accumulatedResponse };
+          newMsgs[newMsgs.length - 1] = { role: 'model', text: response, grounding };
           return newMsgs;
         });
       });
     } catch (err: any) {
-      console.error("Chat Interaction Failure:", err);
-      
+      console.error("Chat Error:", err);
       let errorMsg = 'Falha na conexão neural. Verifique sua rede ou prossiga via **WhatsApp**.';
       
       if (err.message === "API_KEY_MISSING" || err.message === "AUTH_ERROR") {
         setNeedsKey(true);
-        errorMsg = 'Acesso não autorizado. Para utilizar o Dr. Pulini AI, clique em **"Conectar API"** abaixo e selecione uma chave válida.';
+        errorMsg = 'Acesso não configurado. Por favor, ative a chave de API para continuar.';
       }
 
       setMessages(prev => {
@@ -125,7 +136,7 @@ const AIChat: React.FC = () => {
         <button
           onClick={() => setIsOpen(!isOpen)}
           className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 group relative ${
-            isOpen ? 'bg-navy-800 rotate-90' : 'bg-gradient-to-br from-sky-400 to-sky-600 hover:scale-110 active:scale-95'
+            isOpen ? 'bg-navy-800 rotate-90' : 'bg-gradient-to-br from-sky-400 to-sky-600 hover:scale-110 active:scale-95 shadow-sky-500/20'
           }`}
         >
           {isOpen ? <X size={24} className="text-white" /> : <Cpu size={28} className="text-navy-950" />}
@@ -134,39 +145,53 @@ const AIChat: React.FC = () => {
       </div>
 
       {isOpen && (
-        <div className="pointer-events-auto mb-4 w-[calc(100vw-3rem)] md:w-[380px] h-[580px] glass-panel rounded-[2rem] flex flex-col overflow-hidden shadow-2xl border border-white/10 animate-in zoom-in-95 slide-in-from-bottom-10">
-          <div className="p-5 border-b border-white/5 bg-navy-900/95 flex items-center justify-between">
+        <div className="pointer-events-auto mb-4 w-[calc(100vw-3rem)] md:w-[400px] h-[600px] glass-panel rounded-[2.5rem] flex flex-col overflow-hidden shadow-2xl border border-white/10 animate-in zoom-in-95 slide-in-from-bottom-10">
+          <div className="p-6 border-b border-white/5 bg-navy-900/95 flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <Bot size={18} className="text-sky-400" />
+              <div className="w-8 h-8 bg-sky-500/10 rounded-xl flex items-center justify-center border border-sky-500/20">
+                <Bot size={16} className="text-sky-400" />
+              </div>
               <div>
                 <h4 className="text-white font-display font-bold text-xs uppercase tracking-tight">Dr. Pulini <span className="text-sky-400">AI</span></h4>
-                <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Digital Strategist v3</p>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1 h-1 bg-green-500 rounded-full animate-pulse"></div>
+                  <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Grounding Ativo</p>
+                </div>
               </div>
             </div>
-            <button onClick={() => setMessages([{role: 'model', text: 'Chat reiniciado. Como posso ajudar?'}])} className="text-slate-600 hover:text-sky-400 p-1"><RefreshCw size={14} /></button>
+            <button onClick={() => setMessages([{role: 'model', text: 'Sessão reiniciada. Qual seu desafio?'}])} className="text-slate-600 hover:text-sky-400 p-2 transition-colors"><RefreshCw size={14} /></button>
           </div>
 
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-5 bg-navy-950/30 custom-scrollbar">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-navy-950/30 custom-scrollbar">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`px-4 py-3 rounded-2xl max-w-[85%] ${
-                  msg.role === 'user' ? 'bg-sky-600 text-white rounded-tr-none shadow-lg' : 'bg-navy-900 text-slate-300 border border-white/5 rounded-tl-none shadow-md'
+                <div className={`px-4 py-3 rounded-2xl max-w-[90%] ${
+                  msg.role === 'user' ? 'bg-sky-600 text-white rounded-tr-none shadow-lg' : 'bg-navy-900/80 text-slate-300 border border-white/5 rounded-tl-none shadow-md backdrop-blur-sm'
                 }`}>
-                  {msg.text ? <MessageContent text={msg.text} /> : <Loader2 size={14} className="animate-spin text-sky-400 my-1" />}
+                  {msg.text ? <MessageContent text={msg.text} grounding={msg.grounding} /> : <Loader2 size={16} className="animate-spin text-sky-400 my-1" />}
                 </div>
               </div>
             ))}
             
             {needsKey && (
-              <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <button 
-                  onClick={handleActivateAPI}
-                  className="w-full mt-2 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 rounded-xl p-4 flex flex-col items-center gap-2 transition-all group"
-                >
-                  <Key size={18} className="text-sky-400 group-hover:scale-110 transition-transform" />
-                  <span className="text-[10px] text-white font-bold uppercase tracking-[0.2em]">Conectar API</span>
-                  <p className="text-[9px] text-slate-500 font-medium">Selecione uma chave ativa no Google AI Studio</p>
-                </button>
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 p-4 bg-sky-500/5 border border-sky-500/20 rounded-2xl">
+                <div className="flex flex-col items-center text-center gap-3">
+                  <Key size={24} className="text-sky-400" />
+                  <p className="text-[11px] text-slate-300 font-medium">Para ativar o assistente, selecione uma chave de API válida (GCP com faturamento ativo).</p>
+                  <button 
+                    onClick={handleActivateAPI}
+                    className="bg-sky-500 text-navy-900 text-[10px] font-bold uppercase tracking-widest px-6 py-2 rounded-lg hover:bg-sky-400 transition-all shadow-lg"
+                  >
+                    Conectar Agora
+                  </button>
+                  <a 
+                    href="https://ai.google.dev/gemini-api/docs/billing" 
+                    target="_blank" 
+                    className="text-[9px] text-slate-500 underline hover:text-sky-400"
+                  >
+                    Saiba mais sobre o faturamento da API
+                  </a>
+                </div>
               </div>
             )}
           </div>
@@ -179,25 +204,25 @@ const AIChat: React.FC = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="Descreva seu desafio jurídico..."
-                className="w-full bg-navy-950/80 border border-white/10 rounded-xl px-5 py-4 text-white text-[13px] focus:outline-none focus:border-sky-500/40 transition-all"
+                placeholder="Ex: Como proteger meu código SaaS?"
+                className="w-full bg-navy-950/80 border border-white/10 rounded-xl px-5 py-4 text-white text-[13px] focus:outline-none focus:border-sky-400/50 transition-all placeholder:text-slate-600"
               />
               <button
                 onClick={handleSend}
                 disabled={isLoading || !input.trim()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-sky-500 text-navy-950 rounded-lg flex items-center justify-center hover:bg-sky-400 disabled:opacity-20 transition-colors"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-sky-500 text-navy-950 rounded-lg flex items-center justify-center hover:bg-sky-400 disabled:opacity-20 transition-all shadow-inner shadow-white/20"
               >
                 {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
               </button>
             </div>
             <div className="mt-4 flex justify-between items-center px-2">
-               <div className="flex items-center space-x-1.5 text-[9px] font-bold text-slate-500 uppercase tracking-widest">
-                  <div className={`w-1.5 h-1.5 rounded-full ${needsKey ? 'bg-red-500' : 'bg-green-500'} animate-pulse`} />
-                  <span>{needsKey ? 'Conexão Necessária' : 'Sistema Operacional'}</span>
+               <div className="flex items-center space-x-2 text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                  <div className={`w-1.5 h-1.5 rounded-full ${needsKey ? 'bg-red-500' : 'bg-sky-500'} shadow-[0_0_8px_rgba(56,189,248,0.5)]`} />
+                  <span>{needsKey ? 'Aguardando Chave' : 'Neural Core v4'}</span>
                </div>
                <a href={WHATSAPP_URL} target="_blank" className="flex items-center space-x-1.5 text-[9px] font-bold text-sky-500 uppercase tracking-widest hover:text-white transition-colors">
                   <AlertCircle size={10} />
-                  <span>Atendimento Humano</span>
+                  <span>Advocacia Humana</span>
                </a>
             </div>
           </div>
