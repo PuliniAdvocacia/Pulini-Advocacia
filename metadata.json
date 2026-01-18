@@ -1,6 +1,11 @@
 {
-  "name": "Copy of Pulini Advocacia - Direito Digital & LGPD",
-  "description": "Escritório de advocacia especializado em Direito Digital e Proteção de Dados (LGPD). Aliando tecnologia e excelência jurídica para proteger o seu negócio na era digital.",
+  "name": "Pulini Advocacia | Direito Digital & LGPD",
+  "short_name": "Pulini Adv",
+  "description": "Advogado especialista em Direito Digital, LGPD e Startups. OAB/SP 460.464. Consultoria jurídica de alta performance em São Paulo.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020c1b",
+  "theme_color": "#38bdf8",
   "requestFramePermissions": [
     "camera",
     "microphone"

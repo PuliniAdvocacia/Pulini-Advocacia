@@ -18,27 +18,94 @@ const App: React.FC = () => {
   const containerRef = useIntersectionObserver();
 
   useEffect(() => {
-    // Injeção de Dados Estruturados (JSON-LD) para SEO Local e de Negócio
+    // Injeção de Dados Estruturados (JSON-LD) Ultra-Completos para Google Rich Snippets
     const structuredData = {
       "@context": "https://schema.org",
-      "@type": "LegalService",
-      "name": "Pulini Advocacia",
-      "description": "Escritório de advocacia especializado em Direito Digital, LGPD e Contratos Tech.",
-      "url": "https://pulini.adv.br",
-      "telephone": OFFICE_PHONE,
-      "email": OFFICE_EMAIL,
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "São Paulo",
-        "addressRegion": "SP",
-        "addressCountry": "BR"
-      },
-      "founder": {
-        "@type": "Person",
-        "name": "Vitor Pulini"
-      },
-      "knowsAbout": ["Direito Digital", "LGPD", "Proteção de Dados", "SaaS Compliance", "Startups Law"],
-      "image": "https://i.postimg.cc/Y23xGLCb/profile.jpg"
+      "@graph": [
+        {
+          "@type": "LegalService",
+          "@id": "https://pulini.adv.br/#organization",
+          "name": "Pulini Advocacia",
+          "alternateName": ["Vitor Pulini Advocacia", "Pulini Digital Law"],
+          "description": "Escritório de advocacia boutique especializado em Direito Digital, Proteção de Dados (LGPD) e Blindagem para Startups.",
+          "url": "https://pulini.adv.br",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://i.postimg.cc/Y23xGLCb/profile.jpg"
+          },
+          "image": "https://i.postimg.cc/Y23xGLCb/profile.jpg",
+          "telephone": OFFICE_PHONE,
+          "email": OFFICE_EMAIL,
+          "priceRange": "$$$",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "São Paulo",
+            "addressRegion": "SP",
+            "addressCountry": "BR"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "-23.5505",
+            "longitude": "-46.6333"
+          },
+          "openingHoursSpecification": {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+            "opens": "09:00",
+            "closes": "18:00"
+          },
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Serviços Jurídicos Digitais",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Adequação à LGPD",
+                  "description": "Implementação completa de governança e proteção de dados para empresas."
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Blindagem de Startups",
+                  "description": "Estruturação jurídica, contratos de investimento e vesting."
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Direito SaaS",
+                  "description": "Elaboração de Termos de Uso e Políticas de Privacidade para softwares."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "@type": "Person",
+          "@id": "https://pulini.adv.br/#founder",
+          "name": "Vitor Pulini",
+          "jobTitle": "Advogado Especialista em Direito Digital",
+          "nationality": "BR",
+          "affiliation": { "@id": "https://pulini.adv.br/#organization" },
+          "sameAs": [
+            "https://www.linkedin.com/in/vitorpulini",
+            "https://www.instagram.com/pulini.adv"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://pulini.adv.br/#website",
+          "url": "https://pulini.adv.br",
+          "name": "Pulini Advocacia",
+          "publisher": { "@id": "https://pulini.adv.br/#organization" },
+          "inLanguage": "pt-BR"
+        }
+      ]
     };
 
     const script = document.createElement('script');
@@ -47,7 +114,8 @@ const App: React.FC = () => {
     document.head.appendChild(script);
 
     return () => {
-      document.head.removeChild(script);
+      const existingScript = document.head.querySelector('script[type="application/ld+json"]');
+      if (existingScript) document.head.removeChild(existingScript);
     };
   }, []);
 
@@ -68,7 +136,7 @@ const App: React.FC = () => {
       
       <Footer />
       
-      {/* Floating UI Elements */}
+      {/* Elementos Flutuantes Otimizados */}
       <WhatsAppFloating />
       <AIChat />
       <CookieBanner />
