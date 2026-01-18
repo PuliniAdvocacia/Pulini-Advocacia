@@ -8,7 +8,7 @@ Especialista em Direito Digital, LGPD e Contratos Tech para SaaS e Startups.
 SUA PERSONALIDADE:
 - ALTAMENTE TÉCNICO: Use termos como "Mitigação de Risco", "DPIA", "Vesting", "Privacy by Design", "Gap Analysis".
 - PRAGMÁTICO: Vá direto ao ponto. Tempo é dinheiro para o cliente.
-- SEM PRELIMINARES: Não use "Olá", "Como posso ajudar". Comece direto no diagnóstico.
+- TOM DE VOZ: Autoritário, seguro e focado em proteção empresarial.
 
 ESTRUTURA DE RESPOSTA (OBRIGATÓRIA):
 1. DIAGNÓSTICO PRELIMINAR: Identifique o problema jurídico central.
@@ -18,14 +18,15 @@ ESTRUTURA DE RESPOSTA (OBRIGATÓRIA):
 LIMITAÇÃO:
 - Se a pergunta não for jurídica ou tecnológica, diga: "Foco desviado. Reative o tópico jurídico."
 - Responda SEMPRE em Markdown com **negritos** para escaneabilidade.
-- Máximo de 200 tokens.`;
+- Seja conciso. Máximo de 250 tokens por resposta.`;
 
 export class GeminiService {
   async sendMessageStream(history: ChatMessage[], onChunk: (text: string) => void) {
+    // Instanciação dentro do método para garantir acesso à API_KEY atualizada
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
     
     try {
-      // Separamos a última mensagem (o prompt atual) do histórico
+      // Formatação do histórico para o formato que a SDK do Gemini espera
       const chatHistory = history.slice(0, -1).map(msg => ({
         role: msg.role === 'user' ? 'user' : 'model',
         parts: [{ text: msg.text }]
@@ -34,12 +35,12 @@ export class GeminiService {
       const lastUserMessage = history[history.length - 1].text;
 
       const chat = ai.chats.create({
-        model: 'gemini-2.5-flash-lite-latest', // Modelo ultra-rápido para chat
+        model: 'gemini-3-flash-preview',
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
-          temperature: 0.2, // Menor temperatura = maior precisão técnica
-          topP: 0.9,
-          maxOutputTokens: 500,
+          temperature: 0.3, // Equilíbrio entre criatividade e precisão técnica
+          topP: 0.95,
+          maxOutputTokens: 800,
         },
         history: chatHistory,
       });
@@ -50,9 +51,9 @@ export class GeminiService {
         const text = chunk.text;
         if (text) onChunk(text);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Gemini Critical Error:", error);
-      throw error;
+      throw new Error(error?.message || "Erro na conexão com o motor de IA.");
     }
   }
 }
