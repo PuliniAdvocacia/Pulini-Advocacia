@@ -22,11 +22,11 @@ LIMITAÇÃO:
 
 export class GeminiService {
   async sendMessageStream(history: ChatMessage[], onChunk: (text: string) => void) {
-    // Instanciação dentro do método para garantir acesso à API_KEY atualizada
+    // Inicialização conforme diretrizes: usar objeto nomeado com apiKey
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
     
     try {
-      // Formatação do histórico para o formato que a SDK do Gemini espera
+      // Prepara o histórico omitindo a última mensagem que será o prompt atual
       const chatHistory = history.slice(0, -1).map(msg => ({
         role: msg.role === 'user' ? 'user' : 'model',
         parts: [{ text: msg.text }]
@@ -34,26 +34,27 @@ export class GeminiService {
       
       const lastUserMessage = history[history.length - 1].text;
 
+      // Criação do chat usando o modelo recomendado
       const chat = ai.chats.create({
         model: 'gemini-3-flash-preview',
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
-          temperature: 0.3, // Equilíbrio entre criatividade e precisão técnica
+          temperature: 0.2, // Precisão técnica aumentada
           topP: 0.95,
-          maxOutputTokens: 800,
         },
-        history: chatHistory,
+        history: chatHistory as any,
       });
 
       const result = await chat.sendMessageStream({ message: lastUserMessage });
 
       for await (const chunk of result) {
+        // Acessa .text como propriedade, não método, conforme regras
         const text = chunk.text;
         if (text) onChunk(text);
       }
     } catch (error: any) {
       console.error("Gemini Critical Error:", error);
-      throw new Error(error?.message || "Erro na conexão com o motor de IA.");
+      throw new Error(error?.message || "Erro de conexão com a inteligência artificial.");
     }
   }
 }
