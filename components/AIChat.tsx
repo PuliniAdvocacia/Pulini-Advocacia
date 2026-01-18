@@ -84,6 +84,20 @@ const AIChat: React.FC = () => {
     }
   }, [isOpen, messages, scrollToBottom]);
 
+  const checkAndOpenKeySelector = async () => {
+    // @ts-ignore
+    if (window.aistudio) {
+      // @ts-ignore
+      const hasKey = await window.aistudio.hasSelectedApiKey();
+      if (!hasKey) {
+        // @ts-ignore
+        await window.aistudio.openSelectKey();
+        return true; // Tentou abrir o seletor
+      }
+    }
+    return false;
+  };
+
   const handleActivateAPI = async () => {
     // @ts-ignore
     if (window.aistudio) {
@@ -96,6 +110,18 @@ const AIChat: React.FC = () => {
   const handleSend = async () => {
     const text = input.trim();
     if (!text || isLoading) return;
+
+    // Verifica se há chave antes de enviar
+    // @ts-ignore
+    const keyInjected = !!process.env.API_KEY;
+    // @ts-ignore
+    const hasSelected = window.aistudio ? await window.aistudio.hasSelectedApiKey() : false;
+
+    if (!keyInjected && !hasSelected) {
+      setNeedsKey(true);
+      await handleActivateAPI();
+      // Assume sucesso após o trigger do diálogo conforme regra de race condition
+    }
 
     const userMsg: ChatMessage = { role: 'user', text };
     setMessages(prev => [...prev, userMsg, { role: 'model', text: '' }]);
@@ -117,7 +143,7 @@ const AIChat: React.FC = () => {
       
       if (err.message === "API_KEY_MISSING" || err.message === "AUTH_ERROR") {
         setNeedsKey(true);
-        errorMsg = 'Acesso não configurado. Por favor, ative a chave de API para continuar.';
+        errorMsg = 'Acesso não configurado. É necessário selecionar uma chave de API para utilizar o Dr. Pulini AI.';
       }
 
       setMessages(prev => {
@@ -154,8 +180,8 @@ const AIChat: React.FC = () => {
               <div>
                 <h4 className="text-white font-display font-bold text-xs uppercase tracking-tight">Dr. Pulini <span className="text-sky-400">AI</span></h4>
                 <div className="flex items-center gap-1.5">
-                  <div className="w-1 h-1 bg-green-500 rounded-full animate-pulse"></div>
-                  <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Grounding Ativo</p>
+                  <div className={`w-1 h-1 rounded-full animate-pulse ${needsKey ? 'bg-red-500' : 'bg-green-500'}`}></div>
+                  <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">{needsKey ? 'Chave Ausente' : 'Grounding Ativo'}</p>
                 </div>
               </div>
             </div>
@@ -164,36 +190,40 @@ const AIChat: React.FC = () => {
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-navy-950/30 custom-scrollbar">
             {messages.map((msg, idx) => (
-              <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`px-4 py-3 rounded-2xl max-w-[90%] ${
-                  msg.role === 'user' ? 'bg-sky-600 text-white rounded-tr-none shadow-lg' : 'bg-navy-900/80 text-slate-300 border border-white/5 rounded-tl-none shadow-md backdrop-blur-sm'
-                }`}>
-                  {msg.text ? <MessageContent text={msg.text} grounding={msg.grounding} /> : <Loader2 size={16} className="animate-spin text-sky-400 my-1" />}
+              <div key={idx} className="space-y-4">
+                <div className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`px-4 py-3 rounded-2xl max-w-[90%] ${
+                    msg.role === 'user' ? 'bg-sky-600 text-white rounded-tr-none shadow-lg' : 'bg-navy-900/80 text-slate-300 border border-white/5 rounded-tl-none shadow-md backdrop-blur-sm'
+                  }`}>
+                    {msg.text ? <MessageContent text={msg.text} grounding={msg.grounding} /> : <Loader2 size={16} className="animate-spin text-sky-400 my-1" />}
+                  </div>
                 </div>
+                
+                {/* Mostra o botão de ativação logo abaixo da mensagem de erro se necessário */}
+                {idx === messages.length - 1 && needsKey && msg.role === 'model' && (
+                  <div className="flex flex-col items-center p-6 bg-sky-500/5 border border-sky-500/20 rounded-2xl animate-in fade-in zoom-in-95 duration-500">
+                    <Key size={32} className="text-sky-400 mb-4" />
+                    <h5 className="text-white font-bold text-xs mb-2 uppercase">Conectar Inteligência</h5>
+                    <p className="text-[10px] text-slate-400 text-center mb-5 leading-relaxed">
+                      Este assistente requer uma chave do Google AI Studio com faturamento ativo para operar.
+                    </p>
+                    <button 
+                      onClick={handleActivateAPI}
+                      className="w-full bg-sky-500 text-navy-900 text-[10px] font-bold uppercase tracking-widest py-3 rounded-xl hover:bg-sky-400 transition-all shadow-lg shadow-sky-500/10 active:scale-95"
+                    >
+                      Selecionar Chave de API
+                    </button>
+                    <a 
+                      href="https://ai.google.dev/gemini-api/docs/billing" 
+                      target="_blank" 
+                      className="mt-4 text-[9px] text-slate-500 underline hover:text-sky-400 transition-colors"
+                    >
+                      Configurar faturamento da API
+                    </a>
+                  </div>
+                )}
               </div>
             ))}
-            
-            {needsKey && (
-              <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 p-4 bg-sky-500/5 border border-sky-500/20 rounded-2xl">
-                <div className="flex flex-col items-center text-center gap-3">
-                  <Key size={24} className="text-sky-400" />
-                  <p className="text-[11px] text-slate-300 font-medium">Para ativar o assistente, selecione uma chave de API válida (GCP com faturamento ativo).</p>
-                  <button 
-                    onClick={handleActivateAPI}
-                    className="bg-sky-500 text-navy-900 text-[10px] font-bold uppercase tracking-widest px-6 py-2 rounded-lg hover:bg-sky-400 transition-all shadow-lg"
-                  >
-                    Conectar Agora
-                  </button>
-                  <a 
-                    href="https://ai.google.dev/gemini-api/docs/billing" 
-                    target="_blank" 
-                    className="text-[9px] text-slate-500 underline hover:text-sky-400"
-                  >
-                    Saiba mais sobre o faturamento da API
-                  </a>
-                </div>
-              </div>
-            )}
           </div>
 
           <div className="p-4 bg-navy-900/98 border-t border-white/5">
@@ -204,20 +234,20 @@ const AIChat: React.FC = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="Ex: Como proteger meu código SaaS?"
-                className="w-full bg-navy-950/80 border border-white/10 rounded-xl px-5 py-4 text-white text-[13px] focus:outline-none focus:border-sky-400/50 transition-all placeholder:text-slate-600"
+                placeholder={needsKey ? "Ative a chave para perguntar..." : "Ex: Como proteger meu código SaaS?"}
+                className={`w-full bg-navy-950/80 border border-white/10 rounded-xl px-5 py-4 text-white text-[13px] focus:outline-none focus:border-sky-400/50 transition-all placeholder:text-slate-600 ${needsKey ? 'opacity-50' : ''}`}
               />
               <button
                 onClick={handleSend}
                 disabled={isLoading || !input.trim()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-sky-500 text-navy-950 rounded-lg flex items-center justify-center hover:bg-sky-400 disabled:opacity-20 transition-all shadow-inner shadow-white/20"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-sky-500 text-navy-900 rounded-lg flex items-center justify-center hover:bg-sky-400 disabled:opacity-20 transition-all shadow-inner shadow-white/20"
               >
                 {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
               </button>
             </div>
             <div className="mt-4 flex justify-between items-center px-2">
                <div className="flex items-center space-x-2 text-[9px] font-bold text-slate-500 uppercase tracking-widest">
-                  <div className={`w-1.5 h-1.5 rounded-full ${needsKey ? 'bg-red-500' : 'bg-sky-500'} shadow-[0_0_8px_rgba(56,189,248,0.5)]`} />
+                  <div className={`w-1.5 h-1.5 rounded-full ${needsKey ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-sky-500 shadow-[0_0_8px_rgba(56,189,248,0.5)]'}`} />
                   <span>{needsKey ? 'Aguardando Chave' : 'Neural Core v4'}</span>
                </div>
                <a href={WHATSAPP_URL} target="_blank" className="flex items-center space-x-1.5 text-[9px] font-bold text-sky-500 uppercase tracking-widest hover:text-white transition-colors">

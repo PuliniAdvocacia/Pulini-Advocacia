@@ -15,12 +15,14 @@ DIRETRIZES:
 
 export class GeminiService {
   async sendMessageStream(history: ChatMessage[], onChunk: (text: string, grounding?: any) => void) {
+    // IMPORTANTE: Obter a chave no momento da execução
     const apiKey = process.env.API_KEY;
     
     if (!apiKey) {
       throw new Error("API_KEY_MISSING");
     }
 
+    // Instancia o SDK com a chave atual
     const ai = new GoogleGenAI({ apiKey });
     
     try {
@@ -30,7 +32,8 @@ export class GeminiService {
         parts: [{ text: msg.text }]
       }));
 
-      const result = await ai.models.generateContent({
+      // Usando generateContentStream para melhor feedback visual
+      const resultStream = await ai.models.generateContentStream({
         model: 'gemini-3-flash-preview',
         contents: [
           ...chatHistory,
@@ -43,15 +46,21 @@ export class GeminiService {
         },
       });
 
-      const text = result.text;
-      const grounding = result.candidates?.[0]?.groundingMetadata;
-      
-      if (text) {
-        onChunk(text, grounding);
+      let fullText = "";
+      let groundingMetadata: any = null;
+
+      for await (const chunk of resultStream) {
+        fullText += chunk.text || "";
+        // O grounding costuma vir nos últimos chunks ou no objeto final
+        if (chunk.candidates?.[0]?.groundingMetadata) {
+          groundingMetadata = chunk.candidates[0].groundingMetadata;
+        }
+        onChunk(fullText, groundingMetadata);
       }
     } catch (error: any) {
       console.error("Gemini Service Error:", error);
-      if (error.message?.includes("API key") || error.message?.includes("403")) {
+      const errorMsg = error.message || "";
+      if (errorMsg.includes("API key") || errorMsg.includes("403") || errorMsg.includes("not found")) {
         throw new Error("AUTH_ERROR");
       }
       throw error;
