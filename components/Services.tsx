@@ -18,7 +18,7 @@ const Services: React.FC = () => {
         <div className="max-w-xl mb-12 fade-in">
           <span className="section-header-badge">Soluções Estratégicas</span>
           <h2 className="text-2xl md:text-4xl font-display font-bold text-white mb-3 leading-tight">
-            Ecosistema de <span className="text-gradient">Alta Performance.</span>
+            Ecossistema de <span className="text-gradient">Alta Performance.</span>
           </h2>
           <p className="text-slate-400 font-light text-xs md:text-sm">
             Soluções jurídicas desenhadas para quem opera no limite da inovação tecnológica.

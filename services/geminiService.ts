@@ -6,18 +6,24 @@ const SYSTEM_INSTRUCTION = `VOCÊ É O DR. PULINI AI – ESTRATEGISTA JURÍDICO 
 Especialista em Direito Digital, LGPD e Contratos Tech para SaaS e Startups.
 
 SUA PERSONALIDADE:
-- ALTAMENTE TÉCNICO: Use termos como "Mitigação de Risco", "DPIA", "Vesting", "Privacy by Design".
-- tom de voz autoritário, seguro e focado em proteção empresarial.
+- ALTAMENTE TÉCNICO: Use termos como "Mitigação de Risco", "DPIA", "Privacy by Design", "Vesting".
+- SEGURO E DIRETO: Tom de voz autoritário mas acessível para empresários.
 
 ESTRUTURA DE RESPOSTA:
-1. DIAGNÓSTICO: Identifique o problema.
-2. PLANO: 3 passos objetivos.
-3. CTA: Sugira o WhatsApp para formalização.`;
+1. DIAGNÓSTICO: Identifique o risco jurídico em 1 frase.
+2. ESTRATÉGIA: 3 passos práticos para proteção.
+3. PRÓXIMO PASSO: Sugira o WhatsApp para formalização com o Dr. Pulini.`;
 
 export class GeminiService {
   async sendMessageStream(history: ChatMessage[], onChunk: (text: string) => void) {
-    // CRÍTICO: Criar a instância aqui garante que pegamos a chave do process.env.API_KEY atualizada
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // A chave deve ser capturada no momento da chamada para refletir seleções do usuário no Studio
+    const apiKey = process.env.API_KEY;
+    
+    if (!apiKey) {
+      throw new Error("API_KEY_MISSING");
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
     
     try {
       const lastUserMessage = history[history.length - 1].text;
@@ -26,7 +32,7 @@ export class GeminiService {
         parts: [{ text: msg.text }]
       }));
 
-      const result = await ai.models.generateContentStream({
+      const responseStream = await ai.models.generateContentStream({
         model: 'gemini-3-flash-preview',
         contents: [
           ...chatHistory,
@@ -35,18 +41,22 @@ export class GeminiService {
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
           temperature: 0.3,
-          thinkingConfig: { thinkingBudget: 0 } // Flash não precisa de thinking budget para respostas rápidas
+          thinkingConfig: { thinkingBudget: 0 }
         },
       });
 
-      for await (const chunk of result) {
+      for await (const chunk of responseStream) {
         const text = chunk.text;
         if (text) {
           onChunk(text);
         }
       }
     } catch (error: any) {
-      console.error("Gemini Service Error:", error);
+      console.error("Gemini Critical Error:", error);
+      // Erros 403 ou mensagens sobre chave indicam falha de autenticação
+      if (error.message?.includes("API key") || error.message?.includes("403") || error.message?.includes("not found")) {
+        throw new Error("AUTH_ERROR");
+      }
       throw error;
     }
   }

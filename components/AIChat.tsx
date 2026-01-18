@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Bot, User, Loader2, Cpu, RefreshCw, AlertCircle, Key, ExternalLink } from 'lucide-react';
+import { X, Send, Bot, Loader2, Cpu, RefreshCw, AlertCircle, Key } from 'lucide-react';
 import { geminiService } from '../services/geminiService';
 import { ChatMessage } from '../types';
 import { WHATSAPP_URL } from '../constants';
@@ -9,8 +9,10 @@ const MessageContent = ({ text }: { text: string }) => {
   if (!text) return null;
   const lines = text.split('\n');
   return (
-    <>
+    <div className="space-y-2">
       {lines.map((line, i) => {
+        if (!line.trim() && i > 0) return <div key={i} className="h-2" />;
+        
         const parts = line.split(/(\*\*.*?\*\*)/g);
         const formattedLine = parts.map((part, j) => 
           part.startsWith('**') && part.endsWith('**') ? 
@@ -19,48 +21,33 @@ const MessageContent = ({ text }: { text: string }) => {
 
         if (line.trim().startsWith('* ') || line.trim().startsWith('- ')) {
           return (
-            <div key={i} className="flex items-start space-x-2 my-1.5 ml-1">
+            <div key={i} className="flex items-start space-x-2 ml-1">
               <div className="w-1 h-1 bg-sky-500 rounded-full mt-2 shrink-0"></div>
               <span className="text-slate-300 text-[13px] leading-relaxed">{formattedLine}</span>
             </div>
           );
         }
         return (
-          <p key={i} className={line.trim() === '' ? 'h-2' : 'mb-2 leading-relaxed text-[13px] text-slate-300'}>
+          <p key={i} className="leading-relaxed text-[13px] text-slate-300">
             {formattedLine}
           </p>
         );
       })}
-    </>
+    </div>
   );
 };
 
 const AIChat: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [hasKey, setHasKey] = useState<boolean | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'model', text: 'Dr. Pulini AI **online**. Como posso auxiliar na sua estratégia jurídica hoje?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const [needsKey, setNeedsKey] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const checkKey = async () => {
-      // @ts-ignore
-      if (window.aistudio) {
-        // @ts-ignore
-        const active = await window.aistudio.hasSelectedApiKey();
-        setHasKey(active);
-      } else {
-        setHasKey(!!process.env.API_KEY);
-      }
-    };
-    if (isOpen) checkKey();
-  }, [isOpen]);
 
   const scrollToBottom = useCallback(() => {
     if (scrollRef.current) {
@@ -69,28 +56,37 @@ const AIChat: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isLoading, scrollToBottom]);
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 300);
+      scrollToBottom();
+    }
+  }, [isOpen, messages, scrollToBottom]);
 
-  const handleConnectKey = async () => {
+  const handleActivateAPI = async () => {
     // @ts-ignore
     if (window.aistudio) {
       // @ts-ignore
       await window.aistudio.openSelectKey();
-      setHasKey(true); // Assume sucesso conforme as regras da documentação
+      setNeedsKey(false);
     }
   };
 
   const handleSend = async () => {
     const text = input.trim();
-    if (!text || isLoading || !hasKey) return;
+    if (!text || isLoading) return;
 
-    setError(false);
+    // Antes de enviar, verifica se o usuário precisa selecionar uma chave (regra AI Studio)
+    // @ts-ignore
+    if (window.aistudio && !(await window.aistudio.hasSelectedApiKey()) && !process.env.API_KEY) {
+      await handleActivateAPI();
+      // Não interrompemos o fluxo, deixamos a tentativa de envio prosseguir para disparar o erro amigável se necessário
+    }
+
     const userMsg: ChatMessage = { role: 'user', text };
-    
     setMessages(prev => [...prev, userMsg, { role: 'model', text: '' }]);
     setInput('');
     setIsLoading(true);
+    setNeedsKey(false);
 
     let accumulatedResponse = '';
 
@@ -104,17 +100,18 @@ const AIChat: React.FC = () => {
         });
       });
     } catch (err: any) {
-      console.error("Chat Interaction Error:", err);
-      if (err.message?.includes("Requested entity was not found") || err.message?.includes("API key is missing")) {
-        setHasKey(false);
+      console.error("Chat Interaction Failure:", err);
+      
+      let errorMsg = 'Falha na conexão neural. Verifique sua rede ou prossiga via **WhatsApp**.';
+      
+      if (err.message === "API_KEY_MISSING" || err.message === "AUTH_ERROR") {
+        setNeedsKey(true);
+        errorMsg = 'Acesso não autorizado. Para utilizar o Dr. Pulini AI, clique em **"Conectar API"** abaixo e selecione uma chave válida.';
       }
-      setError(true);
+
       setMessages(prev => {
         const newMsgs = [...prev];
-        newMsgs[newMsgs.length - 1] = { 
-          role: 'model', 
-          text: 'Falha na conexão neural. Por favor, conecte sua chave de API ou prossiga via **WhatsApp**.' 
-        };
+        newMsgs[newMsgs.length - 1] = { role: 'model', text: errorMsg };
         return newMsgs;
       });
     } finally {
@@ -143,36 +140,33 @@ const AIChat: React.FC = () => {
               <Bot size={18} className="text-sky-400" />
               <div>
                 <h4 className="text-white font-display font-bold text-xs uppercase tracking-tight">Dr. Pulini <span className="text-sky-400">AI</span></h4>
-                <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Neural Law Engine</p>
+                <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Digital Strategist v3</p>
               </div>
             </div>
-            <button onClick={() => setMessages([{role: 'model', text: 'Reiniciado. Como posso ajudar?'}])} className="text-slate-600 hover:text-sky-400"><RefreshCw size={14} /></button>
+            <button onClick={() => setMessages([{role: 'model', text: 'Chat reiniciado. Como posso ajudar?'}])} className="text-slate-600 hover:text-sky-400 p-1"><RefreshCw size={14} /></button>
           </div>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-5 bg-navy-950/30 custom-scrollbar">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`px-4 py-3 rounded-2xl max-w-[85%] ${
-                  msg.role === 'user' ? 'bg-sky-600 text-white rounded-tr-none' : 'bg-navy-900 text-slate-300 border border-white/5 rounded-tl-none'
+                  msg.role === 'user' ? 'bg-sky-600 text-white rounded-tr-none shadow-lg' : 'bg-navy-900 text-slate-300 border border-white/5 rounded-tl-none shadow-md'
                 }`}>
-                  {msg.text ? <MessageContent text={msg.text} /> : <Loader2 size={14} className="animate-spin text-sky-400" />}
+                  {msg.text ? <MessageContent text={msg.text} /> : <Loader2 size={14} className="animate-spin text-sky-400 my-1" />}
                 </div>
               </div>
             ))}
             
-            {hasKey === false && (
-              <div className="p-4 bg-sky-500/10 border border-sky-500/20 rounded-2xl text-center space-y-3 animate-in fade-in zoom-in">
-                <Key className="mx-auto text-sky-400" size={20} />
-                <p className="text-[11px] text-sky-200 font-bold uppercase tracking-wider leading-relaxed">Conexão Neural Pendente</p>
-                <p className="text-[10px] text-slate-400 font-light">Para interagir com o Dr. Pulini AI, é necessário habilitar a chave de API.</p>
+            {needsKey && (
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <button 
-                  onClick={handleConnectKey}
-                  className="w-full bg-sky-500 text-navy-900 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-sky-400 transition-all flex items-center justify-center space-x-2"
+                  onClick={handleActivateAPI}
+                  className="w-full mt-2 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 rounded-xl p-4 flex flex-col items-center gap-2 transition-all group"
                 >
-                  <Cpu size={14} />
-                  <span>Conectar Gemini API</span>
+                  <Key size={18} className="text-sky-400 group-hover:scale-110 transition-transform" />
+                  <span className="text-[10px] text-white font-bold uppercase tracking-[0.2em]">Conectar API</span>
+                  <p className="text-[9px] text-slate-500 font-medium">Selecione uma chave ativa no Google AI Studio</p>
                 </button>
-                <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" className="block text-[8px] text-slate-500 hover:text-white transition-colors uppercase tracking-widest">Saiba mais sobre Billing</a>
               </div>
             )}
           </div>
@@ -182,24 +176,27 @@ const AIChat: React.FC = () => {
               <input
                 ref={inputRef}
                 type="text"
-                disabled={!hasKey}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder={hasKey ? "Descreva seu desafio jurídico..." : "Conecte a API para começar..."}
-                className="w-full bg-navy-950/80 border border-white/10 rounded-xl px-5 py-4 text-white text-[13px] focus:outline-none focus:border-sky-500/40 disabled:opacity-50"
+                placeholder="Descreva seu desafio jurídico..."
+                className="w-full bg-navy-950/80 border border-white/10 rounded-xl px-5 py-4 text-white text-[13px] focus:outline-none focus:border-sky-500/40 transition-all"
               />
               <button
                 onClick={handleSend}
-                disabled={isLoading || !input.trim() || !hasKey}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-sky-500 text-navy-950 rounded-lg flex items-center justify-center hover:bg-sky-400 disabled:opacity-20"
+                disabled={isLoading || !input.trim()}
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-sky-500 text-navy-950 rounded-lg flex items-center justify-center hover:bg-sky-400 disabled:opacity-20 transition-colors"
               >
                 {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
               </button>
             </div>
-            <div className="mt-4 flex justify-center">
-               <a href={WHATSAPP_URL} target="_blank" className="flex items-center space-x-2 text-[10px] font-bold text-sky-500 uppercase tracking-widest hover:text-white transition-colors">
-                  <AlertCircle size={14} />
+            <div className="mt-4 flex justify-between items-center px-2">
+               <div className="flex items-center space-x-1.5 text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                  <div className={`w-1.5 h-1.5 rounded-full ${needsKey ? 'bg-red-500' : 'bg-green-500'} animate-pulse`} />
+                  <span>{needsKey ? 'Conexão Necessária' : 'Sistema Operacional'}</span>
+               </div>
+               <a href={WHATSAPP_URL} target="_blank" className="flex items-center space-x-1.5 text-[9px] font-bold text-sky-500 uppercase tracking-widest hover:text-white transition-colors">
+                  <AlertCircle size={10} />
                   <span>Atendimento Humano</span>
                </a>
             </div>
