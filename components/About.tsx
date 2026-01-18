@@ -13,28 +13,39 @@ const About: React.FC = () => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center max-w-6xl mx-auto">
           
-          {/* Lado Esquerdo: Foto com Link Online */}
+          {/* Lado Esquerdo: Foto Enquadrada */}
           <div className="lg:col-span-5 fade-in">
             <div className="relative group max-w-sm mx-auto lg:ml-0">
-              <div className="absolute -inset-3 bg-gradient-to-tr from-sky-500/20 to-indigo-500/20 rounded-[2rem] blur-lg opacity-40 group-hover:opacity-70 transition-opacity duration-500"></div>
+              {/* Brilho traseiro */}
+              <div className="absolute -inset-4 bg-gradient-to-tr from-sky-500/30 to-indigo-500/30 rounded-[2rem] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-700"></div>
               
-              <div className="relative aspect-square md:aspect-[4/5] overflow-hidden rounded-[1.5rem] border border-white/10 glass-panel shadow-2xl bg-navy-900">
+              {/* Container da Imagem */}
+              <div className="relative aspect-[3/4] overflow-hidden rounded-[1.5rem] border border-white/10 glass-panel shadow-2xl bg-navy-900">
                 <img 
                   src="https://i.postimg.cc/Y23xGLCb/profile.jpg" 
                   alt="Dr. Vitor Pulini" 
-                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                  className="w-full h-full object-cover object-top grayscale hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    // Se o link falhar ou profile.png não existir, este placeholder profissional assume
                     if (target.src.includes('profile.png')) {
                        target.src = "https://i.postimg.cc/Y23xGLCb/profile.jpg";
                     }
                   }}
                 />
-                <div className="absolute bottom-0 left-0 w-full p-5 bg-gradient-to-t from-navy-950 via-navy-950/60 to-transparent">
-                  <p className="text-white font-display font-bold text-lg leading-tight">Dr. Vitor Pulini</p>
-                  <p className="text-sky-400 text-[9px] uppercase tracking-[0.2em] font-bold">OAB/SP 460.464</p>
+                
+                {/* Overlay de Identificação */}
+                <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-navy-950 via-navy-950/80 to-transparent">
+                  <div className="translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                    <p className="text-white font-display font-bold text-xl leading-tight">Dr. Vitor Pulini</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="w-4 h-[1px] bg-sky-500"></div>
+                      <p className="text-sky-400 text-[10px] uppercase tracking-[0.3em] font-bold">OAB/SP 460.464</p>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Borda Interna de Acabamento (Enquadramento) */}
+                <div className="absolute inset-0 border border-white/5 pointer-events-none rounded-[1.5rem]"></div>
               </div>
             </div>
           </div>
@@ -42,46 +53,48 @@ const About: React.FC = () => {
           {/* Lado Direito: Descrição Qualificada */}
           <div className="lg:col-span-7 fade-in">
             <span className="section-header-badge">Sobre o Advogado</span>
-            <h2 className="text-2xl md:text-4xl font-display font-bold text-white mb-5 leading-tight">
+            <h2 className="text-2xl md:text-4xl font-display font-bold text-white mb-6 leading-tight">
               Estratégia Jurídica <br />
               <span className="text-gradient">de Alta Performance.</span>
             </h2>
 
-            <div className="space-y-4">
-              <p className="text-slate-400 text-xs md:text-sm leading-relaxed font-light">
+            <div className="space-y-5">
+              <p className="text-slate-400 text-xs md:text-base leading-relaxed font-light">
                 O <span className="text-white font-medium">Dr. Vitor Pulini</span> é especialista em Direito Digital e Proteção de Dados, atuando como o braço jurídico estratégico de empresas que operam na economia digital.
               </p>
               
-              <p className="text-slate-400 text-xs md:text-sm leading-relaxed font-light">
-                Com uma abordagem pragmática e focada em resultados, sua missão é transformar o Direito em um diferencial competitivo, garantindo que a inovação ocorra sob uma blindagem institucional sólida.
+              <p className="text-slate-400 text-xs md:text-base leading-relaxed font-light">
+                Com uma abordagem pragmática e focada em resultados, sua missão é transformar o Direito em um diferencial competitivo, garantindo que a inovação ocorra sob uma blindagem institucional sólida e segura.
               </p>
 
               {/* Qualificações Grid Compacto */}
-              <div className="grid grid-cols-2 gap-4 pt-4">
+              <div className="grid grid-cols-2 gap-4 pt-6">
                 {[
                   { icon: Award, label: "Expertise LGPD", desc: "Consultoria Técnica" },
                   { icon: BookOpen, label: "SaaS & App", desc: "Compliance Digital" },
                   { icon: Target, label: "M&A Tech", desc: "Blindagem Startups" },
                   { icon: ShieldCheck, label: "Cybersecurity", desc: "Gestão de Riscos" }
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center space-x-3 p-3 rounded-xl border border-white/5 bg-navy-900/40">
-                    <item.icon className="text-sky-500 shrink-0" size={16} />
+                  <div key={i} className="flex items-center space-x-3 p-4 rounded-2xl border border-white/5 bg-navy-900/40 hover:bg-navy-900/60 transition-colors group">
+                    <item.icon className="text-sky-500 shrink-0 group-hover:scale-110 transition-transform" size={18} />
                     <div>
-                      <h4 className="text-white font-bold text-[10px] uppercase tracking-wide">{item.label}</h4>
-                      <p className="text-slate-500 text-[8px]">{item.desc}</p>
+                      <h4 className="text-white font-bold text-[10px] md:text-[11px] uppercase tracking-wide">{item.label}</h4>
+                      <p className="text-slate-500 text-[9px]">{item.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-white/5 flex items-center space-x-4">
+            <div className="mt-10 pt-8 border-t border-white/5 flex items-center">
               <a 
                 href="https://wa.me/5514997912815" 
                 target="_blank" 
-                className="text-[10px] font-bold uppercase tracking-widest text-sky-400 hover:text-white transition-colors"
+                className="group flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest text-sky-400 hover:text-white transition-all"
               >
-                Solicitar Consultoria Individual →
+                <span>Solicitar Consultoria Individual</span>
+                <span className="w-8 h-[1px] bg-sky-500 group-hover:w-12 transition-all"></span>
+                <span className="text-lg">→</span>
               </a>
             </div>
           </div>
