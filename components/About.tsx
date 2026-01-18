@@ -13,16 +13,23 @@ const About: React.FC = () => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center max-w-6xl mx-auto">
           
-          {/* Lado Esquerdo: Foto Local */}
+          {/* Lado Esquerdo: Foto com Link Online */}
           <div className="lg:col-span-5 fade-in">
             <div className="relative group max-w-sm mx-auto lg:ml-0">
               <div className="absolute -inset-3 bg-gradient-to-tr from-sky-500/20 to-indigo-500/20 rounded-[2rem] blur-lg opacity-40 group-hover:opacity-70 transition-opacity duration-500"></div>
               
               <div className="relative aspect-square md:aspect-[4/5] overflow-hidden rounded-[1.5rem] border border-white/10 glass-panel shadow-2xl bg-navy-900">
                 <img 
-                  src="profile.jpg" 
+                  src="profile.png" 
                   alt="Dr. Vitor Pulini" 
                   className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    // Se o link falhar ou profile.png não existir, este placeholder profissional assume
+                    if (target.src.includes('profile.png')) {
+                       target.src = "https://github.com/PuliniAdvocacia/Pulini-Advocacia/blob/b4a8e8e10a4a4273fe26e37b014277c29181876f/profile.jpg";
+                    }
+                  }}
                 />
                 <div className="absolute bottom-0 left-0 w-full p-5 bg-gradient-to-t from-navy-950 via-navy-950/60 to-transparent">
                   <p className="text-white font-display font-bold text-lg leading-tight">Dr. Vitor Pulini</p>
