@@ -29,15 +29,15 @@ const Hero: React.FC = () => {
             target="_blank"
             rel="noopener"
             title="Agendar Consultoria Jurídica via WhatsApp"
-            className="group relative px-6 py-3.5 bg-sky-500 text-navy-950 font-bold text-[10px] md:text-xs uppercase tracking-[0.15em] rounded-xl transition-all hover:scale-105 active:scale-95 flex items-center gap-3 shadow-xl shadow-sky-500/20"
+            className="group relative px-8 py-4 bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 text-navy-950 font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(56,189,248,0.4)] active:scale-95 flex items-center gap-3 shadow-lg shadow-sky-500/20"
           >
-            <WhatsAppIcon className="w-4 h-4" />
+            <WhatsAppIcon className="w-4 h-4 transition-transform group-hover:rotate-12" />
             <span>Consultoria Estratégica</span>
           </a>
           
           <a
             href="#servicos"
-            className="group px-6 py-3.5 border border-white/10 hover:border-sky-500/50 text-white font-bold text-[10px] md:text-xs uppercase tracking-[0.15em] rounded-xl transition-all flex items-center gap-3 glass-panel"
+            className="group px-8 py-4 border border-white/10 hover:border-sky-500/50 text-white font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] rounded-xl transition-all duration-300 flex items-center gap-3 glass-panel"
           >
             <span>Nossas Soluções</span>
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform text-sky-400" />
