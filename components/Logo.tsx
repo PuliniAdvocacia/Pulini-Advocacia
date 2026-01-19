@@ -7,15 +7,14 @@ interface LogoProps {
 }
 
 /**
- * Logo Pulini Advocacia
+ * Logo Pulini Advocacia - Versão de Precisão Óptica 2.0 (100% Reto)
  * 
- * ALINHAMENTO ÓPTICO (Explicação Técnica):
- * No SVG, o 'letter-spacing' é aplicado APÓS cada caractere, incluindo o último.
- * Isso causa um deslocamento lateral que faz o texto parecer "torto" mesmo com text-anchor="middle".
- * 
- * A solução aplicada usa dx para compensar exatamente metade do valor do letter-spacing:
- * 1. Para 'PULINI' (tracking negativo): deslocamos para a esquerda (dx negativo).
- * 2. Para 'ADVOCACIA' (tracking positivo): deslocamos para a direita (dx positivo).
+ * AJUSTES DE PRECISÃO:
+ * 1. ADVOCACIA: Letter-spacing de 0.6em cria um espaço vazio no final. 
+ *    O dx="0.3em" (positivo) move o texto para a direita, centralizando 
+ *    apenas os glifos visíveis.
+ * 2. PULINI: Ajuste de dx="0.05em" para compensar o peso visual do 'P' 
+ *    inicial e a finura do 'I' final, centralizando a "massa" da palavra.
  */
 const Logo: React.FC<LogoProps> = ({ className = "h-8", color = "currentColor" }) => {
   return (
@@ -27,26 +26,26 @@ const Logo: React.FC<LogoProps> = ({ className = "h-8", color = "currentColor" }
       style={{ overflow: 'visible' }}
       aria-label="Logo Pulini Advocacia"
       role="img"
+      preserveAspectRatio="xMidYMid meet"
     >
       <title>Pulini Advocacia</title>
       <g>
         {/* 
-          PULINI
-          Font: Space Grotesk (Bold 800)
-          Letter-spacing: -0.05em
-          Compensação (dx): -0.025em (metade do tracking para centralizar o corpo)
+          PULINI - Headline
+          Fonte: Space Grotesk 800 (Extra Bold)
+          Ajuste dx: Compensa o equilíbrio entre o P e o I final.
         */}
         <text 
-          x="50%" 
-          y="70" 
+          x="200" 
+          y="75" 
           textAnchor="middle" 
-          dx="-0.025em"
+          dx="0.05em" 
           fill={color} 
           style={{ 
             fontFamily: "'Space Grotesk', sans-serif", 
             fontWeight: 800, 
-            fontSize: '92px',
-            letterSpacing: '-0.05em',
+            fontSize: '90px',
+            letterSpacing: '-0.02em',
             textRendering: 'geometricPrecision'
           }}
         >
@@ -54,22 +53,21 @@ const Logo: React.FC<LogoProps> = ({ className = "h-8", color = "currentColor" }
         </text>
         
         {/* 
-          ADVOCACIA
-          Font: Inter (Regular 400)
-          Letter-spacing: 0.48em (elegância e respiro)
-          Compensação (dx): 0.24em (metade do tracking para anular o vazio à direita do último 'A')
+          ADVOCACIA - Subtitle
+          Letter-spacing: 0.6em
+          dx="0.3em": Metade do spacing para anular o rastro à direita.
         */}
         <text 
-          x="50%" 
-          y="112" 
+          x="200" 
+          y="118" 
           textAnchor="middle" 
-          dx="0.24em"
+          dx="0.3em"
           fill={color} 
           style={{ 
             fontFamily: "'Inter', sans-serif", 
             fontWeight: 400, 
-            fontSize: '26px',
-            letterSpacing: '0.48em', 
+            fontSize: '20px',
+            letterSpacing: '0.6em', 
             textRendering: 'geometricPrecision',
             textTransform: 'uppercase'
           }}

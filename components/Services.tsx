@@ -15,12 +15,12 @@ const Services: React.FC = () => {
   return (
     <section id="servicos" className="py-16 bg-navy-900 relative">
       <div className="container mx-auto px-6 relative z-10">
-        <header className="max-w-xl mb-12 fade-in">
+        <header className="max-w-2xl mx-auto text-center mb-12 fade-in">
           <span className="section-header-badge">Expertise Especializada</span>
           <h2 className="text-2xl md:text-4xl font-display font-bold text-white mb-3 leading-tight">
             Serviços de <span className="text-gradient">Alta Especialidade.</span>
           </h2>
-          <p className="text-slate-400 font-light text-xs md:text-sm">
+          <p className="text-slate-400 font-light text-xs md:text-sm mx-auto max-w-lg">
             Soluções jurídicas preventivas e contenciosas focadas no ecossistema de tecnologia.
           </p>
         </header>
