@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import Logo from './Logo';
+import { WHATSAPP_URL } from '../constants';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -61,7 +62,9 @@ const Navbar: React.FC = () => {
             ))}
           </div>
           <a
-            href="#contato"
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="border border-sky-500/40 text-sky-400 px-3 py-1.5 rounded text-[8px] font-bold uppercase tracking-widest hover:bg-sky-500 hover:text-navy-900 transition-all"
           >
             Consulta
