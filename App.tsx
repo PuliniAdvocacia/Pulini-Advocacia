@@ -8,7 +8,6 @@ import Services from './components/Services';
 import Process from './components/Process';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
-import AIChat from './components/AIChat';
 import WhatsAppFloating from './components/WhatsAppFloating';
 import CookieBanner from './components/CookieBanner';
 import { useIntersectionObserver } from './hooks/useIntersectionObserver';
@@ -47,12 +46,6 @@ const App: React.FC = () => {
             "@type": "GeoCoordinates",
             "latitude": "-23.5505",
             "longitude": "-46.6333"
-          },
-          "openingHoursSpecification": {
-            "@type": "OpeningHoursSpecification",
-            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-            "opens": "09:00",
-            "closes": "18:00"
           },
           "hasOfferCatalog": {
             "@type": "OfferCatalog",
@@ -138,7 +131,6 @@ const App: React.FC = () => {
       
       {/* Elementos Flutuantes Otimizados */}
       <WhatsAppFloating />
-      <AIChat />
       <CookieBanner />
     </div>
   );
