@@ -1,47 +1,46 @@
 
 import React from 'react';
-import { ArrowRight } from 'lucide-center';
 import { WhatsAppIcon, WHATSAPP_URL } from '../constants';
-import { ArrowRight as LucideArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const Hero: React.FC = () => {
   return (
-    <section id="home" className="relative min-h-[50vh] flex items-center justify-center pt-20 pb-4 overflow-hidden">
+    <section id="home" className="relative min-h-[60vh] md:min-h-[80vh] flex items-center justify-center pt-20 pb-12 overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full hero-gradient pointer-events-none"></div>
       
-      <div className="container relative z-10 flex flex-col items-center text-center">
+      <div className="container relative z-10 flex flex-col items-center text-center px-6">
         <div className="fade-in">
-          <span className="section-header-badge">OAB/SP 460.464 • Consultoria Digital</span>
+          <span className="section-header-badge">OAB/SP 460.464 • Consultoria Digital de Elite</span>
         </div>
 
         {/* SEO: H1 com as palavras-chave principais do escritório */}
-        <h1 className="fade-in text-2xl md:text-4xl lg:text-5xl font-display font-bold mb-2 leading-tight tracking-tight text-white max-w-2xl">
-          Especialista em <br />
+        <h1 className="fade-in text-3xl md:text-5xl lg:text-7xl font-display font-bold mb-4 leading-tight tracking-tight text-white max-w-4xl">
+          Estrategista em <br />
           <span className="text-gradient">Direito Digital & LGPD</span>
         </h1>
 
-        <p className="fade-in text-[10px] md:text-sm text-slate-400 max-w-md mb-5 leading-relaxed font-light">
-          Advocacia estratégica de alta performance para a economia digital. Blindagem institucional e segurança jurídica para escalar sua startup ou SaaS.
+        <p className="fade-in text-xs md:text-lg text-slate-400 max-w-2xl mb-8 leading-relaxed font-light">
+          Advocacia de alta performance para o ecossistema de tecnologia. Protegemos sua inovação com blindagem jurídica estratégica para Startups, SaaS e Fintechs.
         </p>
 
-        <div className="fade-in flex flex-col sm:flex-row items-center gap-2">
+        <div className="fade-in flex flex-col sm:flex-row items-center gap-4">
           <a
             href={WHATSAPP_URL}
             target="_blank"
             rel="noopener"
             title="Agendar Consultoria Jurídica via WhatsApp"
-            className="group relative px-4 py-2.5 bg-sky-500 text-navy-950 font-bold text-[8px] uppercase tracking-wider rounded-lg transition-all hover:scale-105 active:scale-95 flex items-center gap-2 shadow-lg shadow-sky-500/20"
+            className="group relative px-6 py-3.5 bg-sky-500 text-navy-950 font-bold text-[10px] md:text-xs uppercase tracking-[0.15em] rounded-xl transition-all hover:scale-105 active:scale-95 flex items-center gap-3 shadow-xl shadow-sky-500/20"
           >
-            <WhatsAppIcon className="w-3 h-3" />
+            <WhatsAppIcon className="w-4 h-4" />
             <span>Consultoria Estratégica</span>
           </a>
           
           <a
             href="#servicos"
-            className="group px-4 py-2.5 border border-white/10 hover:border-sky-500/50 text-white font-bold text-[8px] uppercase tracking-wider rounded-lg transition-all flex items-center gap-2 glass-panel"
+            className="group px-6 py-3.5 border border-white/10 hover:border-sky-500/50 text-white font-bold text-[10px] md:text-xs uppercase tracking-[0.15em] rounded-xl transition-all flex items-center gap-3 glass-panel"
           >
             <span>Nossas Soluções</span>
-            <LucideArrowRight size={10} className="group-hover:translate-x-1 transition-transform" />
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform text-sky-400" />
           </a>
         </div>
       </div>
