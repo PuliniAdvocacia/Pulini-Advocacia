@@ -41,9 +41,8 @@ const Footer: React.FC = () => {
             </a>
           </div>
         </div>
-        <div className="border-t border-sky-500/5 pt-1.5 flex justify-between items-center text-slate-600 text-[6px] tracking-[0.1em] uppercase font-medium">
+        <div className="border-t border-sky-500/5 pt-1.5 flex justify-center items-center text-slate-600 text-[6px] tracking-[0.1em] uppercase font-medium">
           <p>© {new Date().getFullYear()} Pulini Advocacia</p>
-          <p>Digital Law Engine • OAB/SP 460.464</p>
         </div>
       </div>
     </footer>
