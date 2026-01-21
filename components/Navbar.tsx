@@ -12,7 +12,7 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 30);
-      const sections = ['home', 'sobre', 'servicos', 'contato'];
+      const sections = ['home', 'sobre', 'servicos', 'contato', 'blog'];
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element) {
@@ -33,6 +33,7 @@ const Navbar: React.FC = () => {
     { label: 'Sobre', id: 'sobre', href: '#sobre' },
     { label: 'Serviços', id: 'servicos', href: '#servicos' },
     { label: 'Contato', id: 'contato', href: '#contato' },
+    { label: 'Blog', id: 'blog', href: '#blog' },
   ];
 
   return (

@@ -1,9 +1,12 @@
 
-import React from 'react';
-import { Instagram, Youtube, Music2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Instagram, Youtube, Music2, Lock } from 'lucide-react';
 import Logo from './Logo';
+import AdminPanel from './AdminPanel';
 
 const Footer: React.FC = () => {
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+
   return (
     <footer className="bg-navy-950 pt-10 pb-6 border-t border-sky-500/5">
       <div className="container mx-auto px-6 flex flex-col items-center">
@@ -43,11 +46,22 @@ const Footer: React.FC = () => {
           </a>
         </div>
 
-        {/* Linha de Copyright Centralizada */}
-        <div className="w-full max-w-xs border-t border-sky-500/5 pt-6 flex justify-center items-center text-slate-600 text-[7px] tracking-[0.2em] uppercase font-bold">
-          <p>© {new Date().getFullYear()} Pulini Advocacia</p>
+        {/* Linha de Copyright e Admin Centralizada */}
+        <div className="w-full max-w-sm border-t border-sky-500/5 pt-6 flex flex-col items-center gap-4">
+          <div className="flex justify-center items-center text-slate-600 text-[7px] tracking-[0.2em] uppercase font-bold">
+            <p>© {new Date().getFullYear()} Pulini Advocacia</p>
+          </div>
+          
+          <button 
+            onClick={() => setIsAdminOpen(true)}
+            className="flex items-center gap-2 text-slate-700 hover:text-sky-500 transition-colors text-[6px] uppercase tracking-widest font-bold"
+          >
+            <Lock size={8} /> Acesso Restrito
+          </button>
         </div>
       </div>
+
+      <AdminPanel isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
     </footer>
   );
 };

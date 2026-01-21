@@ -5,6 +5,7 @@ import Hero from './components/Hero';
 import About from './components/About';
 import TrustSection from './components/TrustSection';
 import Services from './components/Services';
+import Blog from './components/Blog';
 import Process from './components/Process';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
@@ -17,97 +18,67 @@ const App: React.FC = () => {
   const containerRef = useIntersectionObserver();
 
   useEffect(() => {
-    // Injeção de Dados Estruturados (JSON-LD) Ultra-Completos para Google Rich Snippets
+    // Injeção de Dados Estruturados (JSON-LD) de Ultra Performance
     const structuredData = {
       "@context": "https://schema.org",
       "@graph": [
         {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://pulini.adv.br" },
+            { "@type": "ListItem", "position": 2, "name": "Serviços Jurídicos", "item": "https://pulini.adv.br/#servicos" },
+            { "@type": "ListItem", "position": 3, "name": "Direito Digital & LGPD", "item": "https://pulini.adv.br/#sobre" }
+          ]
+        },
+        {
           "@type": "LegalService",
           "@id": "https://pulini.adv.br/#organization",
           "name": "Pulini Advocacia",
-          "alternateName": ["Vitor Pulini Advocacia", "Pulini Digital Law"],
-          "description": "Escritório de advocacia boutique especializado em Direito Digital, Proteção de Dados (LGPD) e Blindagem para Startups.",
+          "alternateName": ["Vitor Pulini Advocacia", "Pulini Digital Law", "Especialista LGPD SP"],
+          "description": "Boutique jurídica líder em Direito Digital, LGPD e Blindagem para Startups em São Paulo. Especialistas em Contratos SaaS e Compliance de Dados.",
           "url": "https://pulini.adv.br",
-          "logo": {
-            "@type": "ImageObject",
-            "url": "https://i.postimg.cc/Y23xGLCb/profile.jpg"
-          },
-          "image": "https://i.postimg.cc/Y23xGLCb/profile.jpg",
+          "logo": "https://i.postimg.cc/Y23xGLCb/profile.jpg",
           "telephone": OFFICE_PHONE,
           "email": OFFICE_EMAIL,
-          "priceRange": "$$$",
           "address": {
             "@type": "PostalAddress",
             "addressLocality": "São Paulo",
             "addressRegion": "SP",
             "addressCountry": "BR"
-          },
-          "geo": {
-            "@type": "GeoCoordinates",
-            "latitude": "-23.5505",
-            "longitude": "-46.6333"
-          },
-          "hasOfferCatalog": {
-            "@type": "OfferCatalog",
-            "name": "Serviços Jurídicos Digitais",
-            "itemListElement": [
-              {
-                "@type": "Offer",
-                "itemOffered": {
-                  "@type": "Service",
-                  "name": "Adequação à LGPD",
-                  "description": "Implementação completa de governança e proteção de dados para empresas."
-                }
-              },
-              {
-                "@type": "Offer",
-                "itemOffered": {
-                  "@type": "Service",
-                  "name": "Blindagem de Startups",
-                  "description": "Estruturação jurídica, contratos de investimento e vesting."
-                }
-              },
-              {
-                "@type": "Offer",
-                "itemOffered": {
-                  "@type": "Service",
-                  "name": "Direito SaaS",
-                  "description": "Elaboração de Termos de Uso e Políticas de Privacidade para softwares."
-                }
-              }
-            ]
           }
         },
         {
-          "@type": "Person",
-          "@id": "https://pulini.adv.br/#founder",
-          "name": "Vitor Pulini",
-          "jobTitle": "Advogado Especialista em Direito Digital",
-          "nationality": "BR",
-          "affiliation": { "@id": "https://pulini.adv.br/#organization" },
-          "sameAs": [
-            "https://www.linkedin.com/in/vitorpulini",
-            "https://www.instagram.com/pulini.adv"
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "O que faz um advogado de Direito Digital?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Um advogado de Direito Digital atua na interseção entre tecnologia e leis, cuidando de privacidade (LGPD), termos de uso de aplicativos, contratos SaaS, e crimes cibernéticos."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Como adequar minha startup à LGPD?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "A adequação exige mapeamento de dados (Data Mapping), revisão de contratos com fornecedores, criação de políticas de privacidade robustas e treinamento da equipe."
+              }
+            }
           ]
-        },
-        {
-          "@type": "WebSite",
-          "@id": "https://pulini.adv.br/#website",
-          "url": "https://pulini.adv.br",
-          "name": "Pulini Advocacia",
-          "publisher": { "@id": "https://pulini.adv.br/#organization" },
-          "inLanguage": "pt-BR"
         }
       ]
     };
 
     const script = document.createElement('script');
     script.type = 'application/ld+json';
+    script.id = 'seo-structured-data';
     script.innerHTML = JSON.stringify(structuredData);
     document.head.appendChild(script);
 
     return () => {
-      const existingScript = document.head.querySelector('script[type="application/ld+json"]');
+      const existingScript = document.getElementById('seo-structured-data');
       if (existingScript) document.head.removeChild(existingScript);
     };
   }, []);
@@ -125,6 +96,7 @@ const App: React.FC = () => {
         <Services />
         <Process />
         <Contact />
+        <Blog />
       </main>
       
       <Footer />
